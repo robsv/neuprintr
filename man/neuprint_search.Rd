@@ -120,7 +120,7 @@ For \code{neuprint_ids}, a character vector of bodyids (of length 0
 
   e.g.
 
-  \code{"where:exists(n.somaLocation) AND n.post>30000 AND NOT n.cropped"}
+  \code{"where:n.somaLocation IS NOT NULL AND n.post>30000 AND NOT n.cropped"}
 
   Note that properties of individual nodes (i.e. neurons) must be prefixed
   with \code{n.} as would be typical in a CYPHER query. This feature is still
@@ -146,8 +146,8 @@ neuprint_search("type:MBON.*", meta=FALSE)
 
 # full access to WHERE cypher queries over nodes (i.e. neurons) in neo4j
 # NB fields must be prefixed with n. to indicate that they are node properties.
-# note also that exists(n.somaLocation) is cypher to ensure soma==TRUE
-neuprint_search("where:exists(n.somaLocation) AND n.post>30000 AND NOT n.cropped")
+# note also that n.somaLocation IS NOT NULL is cypher to ensure soma==TRUE
+neuprint_search("where:n.somaLocation IS NOT NULL AND n.post>30000 AND NOT n.cropped")
 }
 
 \dontrun{
