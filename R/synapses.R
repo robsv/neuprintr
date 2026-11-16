@@ -61,7 +61,7 @@ neuprint_get_synapses <- function(bodyids, roi = NULL, remove.autapses=TRUE,
         ". Please call neuprint_ROIs() to see the available ROIs."
       )
     }
-    roiQ = sprintf("AND (exists(s.`%s`))", roi)
+    roiQ = sprintf("AND (s.`%s` IS NOT NULL)", roi)
   }
   n <- length(bodyids)
   if(is.numeric(chunk)) {
