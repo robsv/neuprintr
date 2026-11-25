@@ -156,7 +156,7 @@ neuprint_get_meta <- function(bodyids, dataset = NULL, all_segments = TRUE,
   cypher = glue(
     "WITH {id2json(bodyids)} AS bodyIds UNWIND bodyIds AS bodyId ",
     " MATCH (n:`{node}`) WHERE n.bodyId=bodyId",
-    " RETURN {returnCypher}, exists(n.somaLocation) AS soma",
+    " RETURN {returnCypher}, n.somaLocation IS NOT NULL AS soma",
     node=ifelse(all_segments,"Segment","Neuron")
   )
   nc <- neuprint_fetch_custom(cypher=cypher, conn = conn, dataset = dataset, include_headers = FALSE, cache=cache, ...)
@@ -279,8 +279,8 @@ neuprint_get_roiInfo <- function(bodyids, dataset = NULL, all_segments = FALSE, 
 #'
 #' # full access to WHERE cypher queries over nodes (i.e. neurons) in neo4j
 #' # NB fields must be prefixed with n. to indicate that they are node properties.
-#' # note also that exists(n.somaLocation) is cypher to ensure soma==TRUE
-#' neuprint_search("where:exists(n.somaLocation) AND n.post>30000 AND NOT n.cropped")
+#' # note also that n.somaLocation IS NOT NULL is cypher to ensure soma==TRUE
+#' neuprint_search("where:n.somaLocation IS NOT NULL AND n.post>30000 AND NOT n.cropped")
 #' }
 #'
 #' \dontrun{
@@ -397,7 +397,7 @@ neuprint_search <- function(search, field = "name", fixed=FALSE, exact=NULL,
 #'
 #'   e.g.
 #'
-#'   \code{"where:exists(n.somaLocation) AND n.post>30000 AND NOT n.cropped"}
+#'   \code{"where:n.somaLocation IS NOT NULL AND n.post>30000 AND NOT n.cropped"}
 #'
 #'   Note that properties of individual nodes (i.e. neurons) must be prefixed
 #'   with \code{n.} as would be typical in a CYPHER query. This feature is still
@@ -506,13 +506,13 @@ neuprint_typeof <- function(field, type=c("r", "neo4j"), cache=TRUE,
   }
   q <- if(type=='r') {"
     MATCH (n:Neuron)
-    WHERE exists(n.`{field}`)
+    WHERE n.`{field}` IS NOT NULL
     RETURN n.`{field}` AS `{field}`
     LIMIT 1
   " } else {"
     MATCH (n:Neuron)
-    WHERE exists(n.`{field}`)
-    RETURN apoc.meta.type(n.`{field}`)
+    WHERE n.`{field}` IS NOT NULL
+    RETURN apoc.meta.cypher.type(n.`{field}`)
     LIMIT 1
   "}
   q=glue(gsub("\\s+", " ", q))
